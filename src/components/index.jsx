@@ -99,29 +99,27 @@ export const Modal = ({ closeModal, details, is_daily }) => {
         </button>
       </div>
 
-      <table class="table-fixed w-full">
+      <table class="table-auto w-full">
         <thead className="text-left">
           <tr className="text-sm p-3">
             <th>Item</th>
             <th>Price</th>
-            <th>Date Purchased</th>
+            <th>Qty</th>
+            <th>Profit</th>
           </tr>
         </thead>
         <tbody>
           {details?.map((info, idx) => (
             <tr className="text-xs w-full" key={idx}>
               <td className="p-1">{info.name}</td>
-              <td>¢ {info.totalPrice}</td>
-              <td>
-                {is_daily === true
-                  ? new Date(info.timeStamp.toDate()).toLocaleTimeString()
-                  : new Date(info.timeStamp.toDate()).toLocaleDateString("ru")}
-              </td>
+              <td>¢ {info.price}</td>
+              <td>{info.quantity}</td>
+              <td>{info.totalPrice - (info.quantity * info.receiptPrice)}</td>
             </tr>
           ))}
         </tbody>
         <tfoot className="text-center bg-black p-2">
-          <td colSpan={3} rowSpan={3} className="p-1 mt-2 text-white">
+          <td colSpan={4} className="p-1 mt-2 text-center text-white">
             {getTotal} cedis
           </td>
         </tfoot>
