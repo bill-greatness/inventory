@@ -1,0 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Overpass&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*{
+    margin:0; 
+    padding:0;
+}
+
+html, * {
+    font-family: Overpass !important;
+}
+input:focus, select:focus{
+    outline: none !important;
+}
+::-webkit-scrollbar{
+    width:0; 
+    height: 0;
+}
+.slide-up {
+    animation: slide-up 1s ease-in-out 0s 1 normal forwards;
+  }
+
+@keyframes slide-up {
+    from {
+      height: 100px;
+      bottom:0;
+      width: 20%;
+    }
+    to {
+      height: 200px;
+      bottom:10px;
+      right:auto;
+      left:auto;
+      width: 100%;
+    }
+  }
+
+  .MuiButton-text {
+    font-weight: bolder !important;
+    /* text-transform: uppercase; */
+    white-space: nowrap;
+  }
+
+  .MuiTableCell-root,
+.MuiInputBase-input,
+.MuiTablePagination-displayedRows,
+.MuiTableCellHead,
+.MuiTablePagination-selectLabel,
+.MuiTablePagination-caption,
+.MuiTypography-body1,
+.MUIDataTableHeadCell-root  *,
+.MuiDataTableCellHeadCell-data  * {
+  font-size: 14px;
+  white-space: nowrap !important;
+}
+  
