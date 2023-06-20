@@ -1,15 +1,36 @@
-import { FiChevronRight } from "react-icons/fi";
-import { MdOutlineArrowDropDown, MdOutlineArrowDropUp } from "react-icons/md";
+import { FiChevronRight, FiEdit2 } from "react-icons/fi";
+import {
+  MdOutlineArrowDropDown,
+  MdOutlineArrowDropUp,
+  MdDelete,
+  MdCancel,
+  MdWarning,
+  MdCheckCircle,
+} from "react-icons/md";
 import { CgCloseO } from "react-icons/cg";
 import { useState } from "react";
-import { addData, updateDocument } from "../functions/calls";
-import _ from 'lodash'
+import { addData, deleteData, updateDocument } from "../functions/calls";
+import _ from "lodash";
 import { Link } from "react-router-dom";
 
 export const Item = ({ item, initSale }) => {
   return (
-    <div className="flex flex-col m-1 bg-white shadow-md w-[170px] md:w-1/4">
+    <div className="flex relative flex-col m-1 bg-white shadow-md w-[170px] md:w-1/4">
       <img src={item.photo} alt="" className="w-full h-20 object-cover" />
+      <div className="absolute flex items-center top-1 right-1">
+        <Link to={`/add-product?id=${item.id}`}>
+          <button className="rounded-full p-1 bg-green-300">
+            <FiEdit2 className="text-xs" />
+          </button>
+        </Link>
+
+        <button
+          onClick={() => deleteData({ path: "products", id: item.id })}
+          className="rounded-full p-1 bg-red-700 ml-2"
+        >
+          <MdDelete className="text-white text-xs" />
+        </button>
+      </div>
       <div className="px-2">
         <h2 className="text-sm font-bold truncate pt-2">{item.name}</h2>
         <p className="text-xs overflow-hidden truncate">{item.desc}</p>
@@ -30,10 +51,9 @@ export const Item = ({ item, initSale }) => {
 export const MenuItem = ({ desc, path, Icon }) => (
   <Link to={path}>
     <div className="flex justify-start items-center my-3">
-    <Icon className="w-6 h-6" /> <h3 className="pl-2">{desc}</h3>
-  </div>
+      <Icon className="w-6 h-6" /> <h3 className="pl-2">{desc}</h3>
+    </div>
   </Link>
-  
 );
 
 export const Stat = ({ item, showModal, getSold }) => {
@@ -66,7 +86,7 @@ export const Stat = ({ item, showModal, getSold }) => {
 };
 
 export const Modal = ({ closeModal, details, is_daily }) => {
-  const getTotal = _.sumBy(details, info => info.totalPrice)
+  const getTotal = _.sumBy(details, (info) => info.totalPrice);
   return (
     <div className="transition duration-1000 ease-in-out sticky overflow-y-scroll bottom-0 w-full p-2  h-[40vh] bg-red-200 z-[5000]">
       <div className="flex justify-between p-3">
@@ -93,13 +113,17 @@ export const Modal = ({ closeModal, details, is_daily }) => {
               <td className="p-1">{info.name}</td>
               <td>¢ {info.totalPrice}</td>
               <td>
-                {is_daily === true ? new Date(info.timeStamp.toDate()).toLocaleTimeString()  : new Date(info.timeStamp.toDate()).toLocaleDateString("ru")}
+                {is_daily === true
+                  ? new Date(info.timeStamp.toDate()).toLocaleTimeString()
+                  : new Date(info.timeStamp.toDate()).toLocaleDateString("ru")}
               </td>
             </tr>
           ))}
         </tbody>
         <tfoot className="text-center bg-black p-2">
-            <td colSpan={3} rowSpan={3} className="p-1 mt-2 text-white">{getTotal} cedis</td>
+          <td colSpan={3} rowSpan={3} className="p-1 mt-2 text-white">
+            {getTotal} cedis
+          </td>
         </tfoot>
       </table>
     </div>
@@ -109,23 +133,19 @@ export const Modal = ({ closeModal, details, is_daily }) => {
 export const SellModal = ({ closeModal, item }) => {
   const [saleType, setSaleType] = useState("Retail");
   const [quantity, setQuantity] = useState(1);
-  const [receiptID, setReceiptID] = useState("");
+  const [price, setPrice] = useState(item.price.retailPrice);
 
   const completeSale = (e) => {
     e.preventDefault();
 
-    const price =
-      saleType === "Retail"
-        ? item.price.retailPrice
-        : item.price.wholeSalePrice;
     const data = {
       name: item.name,
       quantity,
       saleType,
-      receiptID,
       price,
+      receiptPrice: item.price.receiptPrice,
       totalPrice: quantity * price,
-      time: new Date().toLocaleString(),
+      time: new Date().toLocaleString("ru"),
     };
 
     addData({
@@ -149,7 +169,7 @@ export const SellModal = ({ closeModal, item }) => {
       .catch((err) => alert(err.message));
   };
   return (
-    <section className="w-3/4 md:w-[400px] fixed mx-1 min-h-[50vh] shadow-xl bg-blue-300 p-2 z-[50000] slide-up">
+    <section className="w-3/4 md:w-[400px] fixed mx-1 min-h-[45vh] shadow-xl bg-blue-300 p-2 z-[50000] slide-up">
       <form onSubmit={completeSale} className="flex flex-col p-2 w-full h-full">
         <h3 className="font-bold p-2">Sale Details</h3>
         <button
@@ -166,62 +186,48 @@ export const SellModal = ({ closeModal, item }) => {
           value={item.name}
           onChange={() => {}}
         />
-        <input
-          required
-          className="p-1 mb-1"
-          type="text"
-          placeholder="Receipt Number"
-          onChange={(e) => setReceiptID(e.target.value)}
-        />
-        <select
-          required
-          className="p-1 mb-1 bg-white"
-          onChange={(e) => setSaleType(e.target.value)}
-        >
-          <option value="">Sale Type</option>
-          <option value="Wholesale">Wholesale</option>
-          <option value="Retail">Retail</option>
-        </select>
-        <div className="flex w-full">
+        <div className="flex w-full mb-1">
+          <select
+            required
+            className="p-2 mr-1  bg-white w-1/2"
+            onChange={(e) => setSaleType(e.target.value)}
+          >
+            <option value="">Sale Type</option>
+            <option value="Wholesale">Wholesale</option>
+            <option value="Retail">Retail</option>
+          </select>
+
           <input
             type="number"
             min={1}
             max={item.quantity}
-            className="p-1 mb-1 w-1/2 mr-1"
+            className="p-2  w-1/2 "
             placeholder="Quantity"
             onChange={(e) => setQuantity(parseInt(e.target.value))}
           />
+        </div>
 
+        <div className="flex w-full mb-1">
           <input
             type="number"
-            value={
-              saleType === "Retail"
-                ? item.price.retailPrice
-                : item.price.wholeSalePrice
-            }
-            className="p-1 mb-1 w-1/2"
+            value={price}
+            className="p-2 w-1/2 mr-1"
             placeholder="Price"
+            onChange={(e) => setPrice(Number(e.target.value))}
+          />
+          <input
+            type="number"
+            className="p-2 w-1/2"
+            placeholder="Cost"
+            value={quantity * price}
             onChange={(e) => {}}
           />
         </div>
 
-        <input
-          type="number"
-          className="p-1 mb-1"
-          placeholder="Cost"
-          value={
-            quantity *
-            (saleType === "Retail"
-              ? item.price.retailPrice
-              : item.price.wholeSalePrice)
-          }
-          onChange={(e) => {}}
-        />
-
         <button
           type="submit"
-          disabled={!receiptID || !quantity}
-          className="text-white bg-black p-1 mt-2"
+          disabled={!quantity}
+          className="text-white bg-black p-2 mt-2"
         >
           Complete Sale
         </button>
@@ -229,3 +235,24 @@ export const SellModal = ({ closeModal, item }) => {
     </section>
   );
 };
+
+export const Feedback = ({ type, message, close }) => (
+  <div
+    className={`flex items-center absolute move-up p-2 w-full md:w-[270px] justify-between md:right-0 z-[5000] ${
+      type === "success" ? "bg-green-500 text-white" : "bg-red-500 text-white"
+    }`}
+  >
+    <span>
+      {type === "success" ? (
+        <MdCheckCircle className="text-white text-2xl" />
+      ) : (
+        <MdWarning className="text-white text-2xl" />
+      )}
+    </span>{" "}
+    <p className="text-xs p-2">{message}</p>
+    <button onClick={() => close(false)}>
+      <MdCancel className="text-lg text-white" />
+    </button>
+    
+  </div>
+);
