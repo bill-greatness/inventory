@@ -134,6 +134,9 @@ export const SellModal = ({ closeModal, item }) => {
   const [saleType, setSaleType] = useState("Retail");
   const [quantity, setQuantity] = useState(1);
   const [price, setPrice] = useState(item.price.retailPrice);
+  const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState("");
+  const [errType, setErrType] = useState("");
 
   const completeSale = (e) => {
     e.preventDefault();
@@ -162,14 +165,29 @@ export const SellModal = ({ closeModal, item }) => {
             lastUpdate: new Date().toString(),
           },
         })
-          .then(() => alert("Sale Successful"))
-          .then(() => closeModal(false))
-          .catch((err) => alert(err.message));
+          .then(() => {
+            setMessage("Sales Successfully Recorded");
+            setOpen(true);
+            setErrType("success");
+            closeModal(false);
+          })
+          .catch((err) => {
+            setMessage(err.message);
+            setOpen(true);
+            setErrType("error");
+            closeModal(false);
+          });
       })
-      .catch((err) => alert(err.message));
+      .catch((err) => {
+        setMessage(err.message);
+        setOpen(true);
+        setErrType("error");
+        closeModal(false);
+      });
   };
   return (
     <section className="w-3/4 md:w-[400px] fixed mx-1 min-h-[45vh] shadow-xl bg-blue-300 p-2 z-[50000] slide-up">
+      {open && <Feedback message={message} type={errType} close={setOpen} />}
       <form onSubmit={completeSale} className="flex flex-col p-2 w-full h-full">
         <h3 className="font-bold p-2">Sale Details</h3>
         <button
@@ -253,6 +271,5 @@ export const Feedback = ({ type, message, close }) => (
     <button onClick={() => close(false)}>
       <MdCancel className="text-lg text-white" />
     </button>
-    
   </div>
 );
